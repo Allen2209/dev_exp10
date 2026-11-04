@@ -1,0 +1,89 @@
+Ansible:
+
+sudo apt update
+sudo apt install software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install ansible
+ansible --version
+ssh-keygen -t rsa -C "devops default"
+
+ls -la .ssh
+cat .ssh/id_rsa.pub
+cat .ssh/id_rsa
+ssh-copy-id -i ~/.ssh/id_rsa.pub "ipaddress"
+
+ssh -i ~/.ssh/"keyname" "ipaddress"
+
+ssh "Ip address"
+sudo nano inventory
+
+Add the server details:
+[servers]
+10.0.2.15
+
+ansible all --key-file ~/.ssh/id_rsa -i inventory -m ping
+
+sudo nano playbook.yaml
+
+---
+- name: Echo
+hosts: servers
+connection: local
+tasks:
+- name: print ping message
+debug:
+msg: Hello!
+
+ansible-playbook -i inventory playbook.yaml
+
+
+Ansible to create web:
+
+sudo nano playbook1.yaml
+
+
+ Enter the following content:
+---
+- name: Setup Simple Web Application Infrastructure
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Install Apache web server
+      apt:
+        name: apache2
+        state: present
+        update_cache: yes
+
+    - name: Start and enable Apache service
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Deploy sample web page
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <html>
+          <head>
+            <title>My Web App</title>
+          </head>
+          <body>
+            <h1>Welcome to My Web Application</h1>
+          
+            <p>Deployed using Ansible</p>
+          </body>
+          </html>
+
+    - name: Ensure Apache is running
+      service:
+        name: apache2
+        state: restarted
+
+Sudo nano inventory
+
+[webservers]
+10.0.2.15
+
+ansible-playbook -i inventory playbook1.yaml -K

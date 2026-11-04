@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple Login and Signup</title>
+<style>
+*{box-sizing:border-box}body{font-family:Arial,sans-serif;background:#f1f5f9;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}
+.container{background:white;width: min(92%,390px);padding:28px;border-radius:12px;box-shadow:0 8px 28px #00000015}
+h2{text-align:center;color:#1e293b;margin-top:0}.tabs{display:flex;gap:8px;margin-bottom:20px}
+.tabs button{flex:1;padding:10px;border:0;border-radius:6px;background:#e2e8f0;cursor:pointer;font-weight:bold}
+.tabs button.active{background:#2563eb;color:white}label{display:block;margin:12px 0 6px;color:#334155}
+input{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:6px}
+.submit{width:100%;margin-top:20px;padding:12px;background:#2563eb;color:white;border:0;border-radius:6px;cursor:pointer;font-weight:bold}
+#message{text-align:center;margin-top:16px;color:#0f766e;min-height:20px}.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Account Access</h2>
+<div class="tabs">
+<button id="signupTab" class="active" onclick="showForm('signup')">Sign Up</button>
+<button id="loginTab" onclick="showForm('login')">Login</button>
+</div>
+<form id="signupForm">
+<label>Full Name</label><input id="name" type="text" placeholder="Enter your name" required>
+<label>Email</label><input id="signupEmail" type="email" placeholder="Enter your email" required>
+<label>Password</label><input id="signupPassword" type="password" minlength="6" placeholder="Minimum 6 characters" required>
+<button class="submit" type="submit">Create Account</button>
+</form>
+<form id="loginForm" class="hidden">
+<label>Email</label><input id="loginEmail" type="email" placeholder="Enter your email" required>
+<label>Password</label><input id="loginPassword" type="password" placeholder="Enter your password" required>
+<button class="submit" type="submit">Login</button>
+</form>
+<p id="message"></p>
+</div>
+<script>
+function showForm(type){
+ const signup=type==='signup';
+ document.getElementById('signupForm').classList.toggle('hidden',!signup);
+ document.getElementById('loginForm').classList.toggle('hidden',signup);
+ document.getElementById('signupTab').classList.toggle('active',signup);
+ document.getElementById('loginTab').classList.toggle('active',!signup);
+ document.getElementById('message').textContent='';
+}
+async function sendRequest(url,data){
+ const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+ const result=await response.json();
+ document.getElementById('message').textContent=result.message;
+}
+document.getElementById('signupForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ try{await sendRequest('/api/signup',{name:nameInput.value,email:document.getElementById('signupEmail').value,password:document.getElementById('signupPassword').value});}
+ catch(err){document.getElementById('message').textContent='Could not connect to server.';}
+});
+const nameInput=document.getElementById('name');
+document.getElementById('loginForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ try{await sendRequest('/api/login',{email:document.getElementById('loginEmail').value,password:document.getElementById('loginPassword').value});}
+ catch(err){document.getElementById('message').textContent='Could not connect to server.';}
+});
+</script>
+</body>
+</html>
